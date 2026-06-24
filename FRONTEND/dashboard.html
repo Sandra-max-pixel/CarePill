@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CarePill Dashboard</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+<h1>💊 CarePill Dashboard</h1>
+</header>
+
+<div class="dashboard">
+
+    <!-- Medicine Status -->
+    <div class="card">
+        <h3>Medicine Status</h3>
+
+        <p>Morning Dose :
+            <span id="morning">Pending</span>
+        </p>
+
+        <p>Afternoon Dose :
+            <span id="afternoon">xssxx</span>
+        </p>
+
+        <p>Night Dose :
+            <span id="night">Pending</span>
+        </p>
+    </div>
+
+    <!-- Schedule -->
+    <div class="card">
+
+        <h3>Medicine Schedule</h3>
+
+        <label>Morning Dose</label>
+        <input type="time" value="08:00">
+
+        <label>Afternoon Dose</label>
+        <input type="time" value="14:00">
+
+        <label>Night Dose</label>
+        <input type="time" value="20:00">
+
+        <button>Save Schedule</button>
+
+    </div>
+
+    <!-- Stock -->
+    <div class="card">
+        <h3>Medicine Stock</h3>
+
+        <p>Paracetamol</p>
+
+        <h2 id="stock">5 Tablets Left</h2>
+
+        <button>Refill Stock</button>
+    </div>
+
+    <!-- Emergency -->
+    <div class="card">
+        <h3>Emergency Status</h3>
+
+        <h2 id="emergency">Normal</h2>
+
+        <button onclick="window.location.href='alerts.html'">
+            View Alerts
+        </button>
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
