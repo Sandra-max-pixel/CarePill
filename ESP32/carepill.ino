@@ -16,7 +16,6 @@ String serverUrl =
 #define REED1 14
 #define REED2 27
 #define REED3 26
-
 #define LED1 18
 #define LED2 19
 #define LED3 23

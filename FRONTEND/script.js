@@ -2,26 +2,19 @@ function login() {
     window.location.href = "dashboard.html";
 }
 
+// Dashboard data load
 if (window.location.pathname.includes("dashboard.html")) {
 
     async function loadData() {
-        try {
-            const response = await fetch(
-                "http://localhost:3000/status?t=" + new Date().getTime()
-            );
 
+        try {
+
+            const response = await fetch("http://localhost:3000/status");
             const data = await response.json();
 
-            console.log("Received:", data);
-
-            document.getElementById("morning").innerText =
-                data.morning;
-
-            document.getElementById("afternoon").innerText =
-                data.afternoon;
-
-            document.getElementById("night").innerText =
-                data.night;
+            document.getElementById("morning").innerText = data.morning;
+            document.getElementById("afternoon").innerText = data.afternoon;
+            document.getElementById("night").innerText = data.night;
 
             document.getElementById("stock").innerText =
                 data.stock + " Tablets Left";
@@ -30,11 +23,10 @@ if (window.location.pathname.includes("dashboard.html")) {
                 data.emergency;
 
         } catch (error) {
-            console.error("Error:", error);
+            console.log(error);
         }
     }
 
     loadData();
-
     setInterval(loadData, 5000);
 }
