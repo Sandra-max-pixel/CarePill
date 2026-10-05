@@ -7,7 +7,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const uri = "mongodb://Carepill:carepill_iot_2026@ac-dkq3djh-shard-00-00.i8hppow.mongodb.net:27017,ac-dkq3djh-shard-00-01.i8hppow.mongodb.net:27017,ac-dkq3djh-shard-00-02.i8hppow.mongodb.net:27017/?ssl=true&replicaSet=atlas-hvjo6m-shard-0&authSource=admin&appName=Carepillcluster";
+const uri = "paste ur url";
 
 const client = new MongoClient(uri);
 
