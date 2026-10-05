@@ -1,17 +1,34 @@
 const express = require("express");
 const cors = require("cors");
 const { MongoClient } = require("mongodb");
+const cron = require("node-cron");
+const nodemailer = require("nodemailer");
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-const uri = "paste ur url";
+// MongoDB URI should be stored as an environment variable
+const uri = process.env.MONGODB_URI;
+
+if (!uri) {
+    console.error("MONGODB_URI is not set");
+    process.exit(1);
+}
 
 const client = new MongoClient(uri);
 
 let medicineCollection;
+
+// Gmail configuration
+const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    }
+});
 
 // Connect MongoDB
 async function connectDB() {
@@ -24,15 +41,15 @@ async function connectDB() {
         console.log("MongoDB Connected");
 
         const existing = await medicineCollection.findOne({
-            device: "esp32"
+            patient: "patient1"
         });
 
         if (!existing) {
             await medicineCollection.insertOne({
-                device: "esp32",
-                morning: "taken",
+                patient: "patient1",
+                morning: "Pending",
                 afternoon: "Pending",
-                night: "taken",
+                night: "Pending",
                 stock: 30,
                 emergency: "Normal"
             });
@@ -42,71 +59,87 @@ async function connectDB() {
         console.log("MongoDB Error:", err);
     }
 }
+
 // GET STATUS
 app.get("/status", async (req, res) => {
-try {
-    if (!medicineCollection) {
-    return res.status(500).json({
-        error: "Database not connected"
-    });
-}
+    try {
+        const data = await medicineCollection.findOne({
+            patient: "patient1"
+        });
 
+        res.json(data);
 
-    const data = await medicineCollection.findOne({
-        device: "esp32"
-    });
-
-    res.json(data);
-
-} catch (err) {
-    res.status(500).json({
-        error: err.message
-    });
-}
-
-
+    } catch (err) {
+        res.status(500).json({
+            error: err.message
+        });
+    }
 });
 
 // UPDATE STATUS
 app.post("/update", async (req, res) => {
-try {
-if (!medicineCollection) {
-return res.status(500).json({
-error: "Database not connected"
+    try {
+        await medicineCollection.updateOne(
+            { patient: "patient1" },
+            { $set: req.body }
+        );
+
+        res.json({
+            message: "Updated Successfully"
+        });
+
+    } catch (err) {
+        res.status(500).json({
+            error: err.message
+        });
+    }
 });
-}
 
+// EMERGENCY EMAIL ALERT
+app.post("/emergency", async (req, res) => {
+    try {
+        console.log("EMERGENCY API HIT");
 
-    await medicineCollection.updateOne(
-        { device: "esp32" },
-        {
-            $set: req.body
-        }
+        await transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: process.env.EMAIL_USER,
+            subject: "🚨 CarePill Emergency Alert",
+            text: "Emergency alert triggered by patient."
+        });
+
+        console.log("EMAIL SENT");
+
+        res.json({
+            message: "Email Sent Successfully"
+        });
+
+    } catch (err) {
+        console.log("EMAIL ERROR:");
+        console.log(err);
+
+        res.status(500).json({
+            error: err.message
+        });
+    }
+});
+
+// Reminder Check Every Minute
+cron.schedule("* * * * *", async () => {
+    const now = new Date();
+
+    console.log(
+        "Reminder Check:",
+        now.toLocaleTimeString()
     );
-
-    res.json({
-        message: "Updated Successfully"
-    });
-
-} catch (err) {
-    res.status(500).json({
-        error: err.message
-    });
-}
-
-
 });
 
-// Start Server After DB Connection
+// Start Server
 async function startServer() {
-await connectDB();
+    await connectDB();
 
-
-app.listen(3000, () => {
-    console.log("Server Running on Port 3000");
-});
-
-
+    app.listen(3000, () => {
+        console.log("Server Running on Port 3000");
+    });
 }
 
 startServer();
